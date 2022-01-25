@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pymysql
+import winsound
 from PIL import Image
 
 faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
