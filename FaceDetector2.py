@@ -7,7 +7,7 @@ from PIL import Image
 faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
 cam = cv2.VideoCapture(0)
 rec = cv2.face.LBPHFaceRecognizer_create()
-rec.read("Recognizer\\trainingData.xml")
+rec.read("Recognizer\\trainingData.yml")
 #path='DataSet'
 fontface=cv2.FONT_HERSHEY_SIMPLEX
 fontScale = 1

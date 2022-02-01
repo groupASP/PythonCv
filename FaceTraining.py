@@ -22,5 +22,5 @@ def getImagesID(path):
     return IDs, faces
 Ids, faces = getImagesID(path)
 Recognizer.train(faces, np.array(Ids))
-Recognizer.save("Recognizer/trainingData.xml")
+Recognizer.save("Recognizer/trainingData.yml")
 cv2.destroyAllWindows()
