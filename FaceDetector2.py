@@ -10,8 +10,8 @@ rec = cv2.face.LBPHFaceRecognizer_create()
 rec.read("Recognizer\\trainingData.yml")
 #path='DataSet'
 fontface=cv2.FONT_HERSHEY_SIMPLEX
-fontScale = 1
-fontColor = (0,0,255)
+fontScale = 2
+fontColor = (255,0,0)
 
 def getProfile(Id):
     connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
@@ -35,9 +35,7 @@ while(True):
             profile = getProfile(Id)
             if(profile!=None):
                 cv2.putText(img, str(profile[0]), (x, y+h+30), fontface, fontScale, fontColor)
-                cv2.putText(img, str(profile[1]), (x, y+h+60), fontface, fontScale, fontColor)
-                cv2.putText(img, str(profile[2]), (x, y+h+90), fontface, fontScale, fontColor)
-                cv2.putText(img, str(profile[3]), (x, y+h+120), fontface, fontScale, fontColor) 
+                cv2.putText(img, str(profile[1]), (x, y+h+80), fontface, fontScale, fontColor)
         else:
             cv2.putText(img, "Unknown", (x, y+h+30), fontface, fontScale, fontColor)
     cv2.imshow("Face", img)
