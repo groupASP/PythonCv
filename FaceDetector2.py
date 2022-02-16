@@ -42,6 +42,7 @@ def auto():
             future = now + 20
             Id, conf = rec.predict(gray[y:y+h, x:x+w])
             if(conf<70):
+                print(conf)
                 global profile
                 profile = getProfile(Id)
                 if(profile!=None):

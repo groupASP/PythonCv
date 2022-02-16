@@ -66,7 +66,7 @@ Notification = tk.Label(frm, text="All things are good", bg="Green", fg="white",
                 height=3, font=('times', 17, 'bold'))
 
 
-def trainimg():
+def trainImg():
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     global detector
     detector = cv2.CascadeClassifier("D:\Python4.2\Detect\haarcascade_frontalface_default.xml")
@@ -112,7 +112,6 @@ faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
 cam = cv2.VideoCapture(0)
 rec = cv2.face.LBPHFaceRecognizer_create()
 rec.read("Recognizer\\trainingData.yml")
-#path='DataSet'
 fontface=cv2.FONT_HERSHEY_SIMPLEX
 fontScale = 2
 fontColor = (255,0,0)
@@ -138,6 +137,7 @@ def auto():
             future = now + 20
             Id, conf = rec.predict(gray[y:y+h, x:x+w])
             if(conf<70):
+                print(conf)
                 global profile
                 profile = getProfile(Id)
                 if(profile!=None):
@@ -198,7 +198,7 @@ takeImg.place(x=200, y=500)
 clearButton = tk.Button(frm, text="Clear",command=clear,fg="black"  ,bg="deep pink"  ,width=10  ,height=1 ,activebackground = "Red" ,font=('times', 15, ' bold '))
 clearButton.place(x=950, y=310)
 
-trainImg = tk.Button(frm, text="Train Images",fg="black",command=trainimg ,bg="lawn green"  ,width=20  ,height=3, activebackground = "Red" ,font=('times', 15, ' bold '))
+trainImg = tk.Button(frm, text="Train Images",fg="black",command=trainImg ,bg="lawn green"  ,width=20  ,height=3, activebackground = "Red" ,font=('times', 15, ' bold '))
 trainImg.place(x=550, y=500)
 
 FA = tk.Button(frm, text="Automatic Attendace",fg="white",command=auto  ,bg="blue2"  ,width=20  ,height=3, activebackground = "Red" ,font=('times', 15, ' bold '))
