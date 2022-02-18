@@ -18,8 +18,17 @@ frm.geometry('1280x720')
 frm.configure(background='snow')
 
 
-
-
+def err_screen1():
+    global sc2
+    sc2 = tk.Tk()
+    sc2.geometry('300x100')
+    sc2.iconbitmap('AMS.ico')
+    sc2.title('Warning!!')
+    sc2.configure(background='snow')
+    Label(sc2,text='Please enter your subject name!!!',fg='red',bg='white',font=('times', 16, ' bold ')).pack()
+    Button(sc2,text='OK',command=del_sc2,fg="black"  ,bg="lawn green"  ,width=9  ,height=1, activebackground = "Red" ,font=('times', 15, ' bold ')).place(x=90,y= 50)
+def del_sc2():
+    sc2.destroy()
 def clear():
     txt.delete(first=0, last=22)
     txt2.delete(first=0, last=22)
@@ -108,64 +117,94 @@ def getImagesAndLabels(path):
             Ids.append(Id)
     return faceSamples, Ids
 
-faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
-cam = cv2.VideoCapture(0)
-rec = cv2.face.LBPHFaceRecognizer_create()
-rec.read("Recognizer\\trainingData.yml")
-fontface=cv2.FONT_HERSHEY_SIMPLEX
-fontScale = 2
-fontColor = (255,0,0)
+
+def getProfile(Id):
+    connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
+    conn = connection.cursor()
+    sql = "SELECT * FROM people where P_ID='"+str(Id)+"';"
+    conn.execute(sql)
+    profile=None
+    for row in conn:
+        profile=row
+    conn.close()
+    return profile
 
 def auto():
-    def getProfile(Id):
-        connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
-        conn = connection.cursor()
-        sql = "SELECT * FROM people where P_ID='"+str(Id)+"';"
-        conn.execute(sql)
-        profile=None
-        for row in conn:
-            profile=row
-        conn.close()
-        return profile
-
-    while(True):
-        ret, img = cam.read()
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        faces = faceDetect.detectMultiScale(gray, 1.3, 5)
-        for(x, y, w, h) in faces:
-            now = time.time()
-            future = now + 20
-            Id, conf = rec.predict(gray[y:y+h, x:x+w])
-            if(conf<70):
-                print(conf)
-                global profile
-                profile = getProfile(Id)
-                if(profile!=None):
-                    cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                    cv2.putText(img, str(profile[0]), (x, y+h+30), fontface, fontScale, fontColor)
-                    cv2.putText(img, str(profile[1]), (x, y+h+80), fontface, fontScale, fontColor)
+    def chooseSubject():
+        sub=tx.get()
+        now = time.time()  ###For calculate seconds of video
+        future = now + 20
+        if time.time() < future:
+            if sub == '':
+                err_screen1()
             else:
-                cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                cv2.putText(img, "Unknown", (x, y+h+30), fontface, fontScale, fontColor)
-        cv2.imshow("Face", img)
-        key = cv2.waitKey(1) & 0xFF == ord('q')
-        if key:
-            break
-    try:
-        connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
-        conn = connection.cursor()
-    except Exception as e:
-        print(e)
+                rec = cv2.face.LBPHFaceRecognizer_create()
+                try:
+                    rec.read("Recognizer\\trainingData.yml")
+                except:
+                    e = 'Model not found,Please train model'
+                    Notifica.configure(text=e, bg="red", fg="black", width=33, font=('times', 15, 'bold'))
+                    Notifica.place(x=20, y=250)
+                faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
+                cam = cv2.VideoCapture(0)
+                fontface=cv2.FONT_HERSHEY_SIMPLEX
+                fontScale = 2
+                fontColor = (255,0,0)
+                while(True):
+                    ret, img = cam.read()
+                    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                    faces = faceDetect.detectMultiScale(gray, 1.3, 5)
+                    for(x, y, w, h) in faces:
+                        now = time.time()
+                        future = now + 20
+                        Id, conf = rec.predict(gray[y:y+h, x:x+w])
+                        if(conf<70):
+                            print(conf)
+                            global profile
+                            profile = getProfile(Id)
+                            if(profile!=None):
+                                cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                                cv2.putText(img, str(profile[0]), (x, y+h+30), fontface, fontScale, fontColor)
+                                cv2.putText(img, str(profile[1]), (x, y+h+80), fontface, fontScale, fontColor)
+                        else:
+                            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                            cv2.putText(img, "Unknown", (x, y+h+30), fontface, fontScale, fontColor)
+                    cv2.imshow("Face", img)
+                    key = cv2.waitKey(1) & 0xFF == ord('q')
+                    if key:
+                        break
+                import pymysql.connections
+                try:
+                    if(profile!=None):
+                        connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
+                        conn = connection.cursor()
+                        insert_data =  "INSERT INTO attandance VALUES (0, %s, %s, %s)"
+                        VALUES = (str(profile[0]),str(profile[1]), str(sub))
+                        conn.execute(insert_data, VALUES)
+                        connection.commit()
+                except Exception as e:
+                    n='Face not found'
+                    Notification.configure(text=n, bg="SpringGreen3", width=50, font=('times', 18, 'bold'))
+                    Notification.place(x=350, y=400)
+                cam.release()
+                cv2.destroyAllWindows()
+    windo = tk.Tk()
+    windo.iconbitmap('AMS.ico')
+    windo.title("Enter subject name...")
+    windo.geometry('580x320')
+    windo.configure(background='snow')
+    Notifica = tk.Label(windo, text="Attendance filled Successfully", bg="Green", fg="white", width=33,
+                            height=2, font=('times', 15, 'bold'))
+    sub = tk.Label(windo, text="Enter Subject", width=15, height=2, fg="white", bg="blue2", font=('times', 15, ' bold '))
+    sub.place(x=30, y=100)
 
-    insert_data =  "INSERT INTO attandance VALUES (0, %s, %s)"
-    VALUES = (str(profile[0]),str(profile[1]))
-    try:
-        conn.execute(insert_data, VALUES)
-        connection.commit()
-    except Exception as ex:
-        print(ex)
-    cam.release()
-    cv2.destroyAllWindows()
+    tx = tk.Entry(windo, width=20, bg="yellow", fg="red", font=('times', 23, ' bold '))
+    tx.place(x=250, y=105)
+
+    fill_a = tk.Button(windo, text="Fill Attendance", fg="white",command=chooseSubject, bg="deep pink", width=20, height=2,
+                       activebackground="Red", font=('times', 15, ' bold '))
+    fill_a.place(x=250, y=160)
+    windo.mainloop()
 
 def on_closing():
     from tkinter import messagebox
@@ -194,6 +233,9 @@ txt2.place(x=550, y=310)
 
 takeImg = tk.Button(frm, text="Take Images",command=insertOrUpdate,fg="black"  ,bg="lightgreen"  ,width=20  ,height=3, activebackground = "Red" ,font=('times', 15, ' bold '))
 takeImg.place(x=200, y=500)
+
+lbl3 = tk.Label(frm, text="Progress", width=20, fg="black", bg="snow", height=2, font=('times', 15, ' bold '))
+lbl3.place(x=200, y=600)
 
 clearButton = tk.Button(frm, text="Clear",command=clear,fg="black"  ,bg="deep pink"  ,width=10  ,height=1 ,activebackground = "Red" ,font=('times', 15, ' bold '))
 clearButton.place(x=950, y=310)
