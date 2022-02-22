@@ -34,23 +34,36 @@ def clear():
     txt2.delete(first=0, last=22)
     txt.focus()
 
+def getId():
+    connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
+    conn = connection.cursor()
+    sql = "SELECT P_ID FROM people order by P_ID desc limit 1;"
+    conn.execute(sql)
+    profile=None
+    for row in conn:
+        profile=row
+    connection.close()
+    c = int(''.join(map(str, profile)))
+    return c
 
 def insertOrUpdate():
-    Id=txt.get()
-    Name=txt2.get()
+    oid = getId()
+    Id = oid+1
+    Name=txt.get()
+    Surname=txt2.get()
     faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
     cam = cv2.VideoCapture(0)
     connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
     conn = connection.cursor()
-    sql = "Select * from people where P_ID='"+str(Id)+"';"
+    sql = "Select * from people;"
     conn.execute(sql)
-    isRecordExist=0
-    for row in conn:
-        isRecordExist=1
-    if(isRecordExist==1):
-        sql="Update people set Name='"+str(Name)+"'where P_ID='"+str(Id)+"';"
-    else:
-        sql="Insert into people(P_ID, Name) values('"+str(Id)+"', '"+str(Name)+"');"
+    # isRecordExist=0
+    # for row in conn:
+    #     isRecordExist=1
+    # if(isRecordExist==1):
+    #     pass
+    # else:
+    sql="Insert into people(P_ID, Name, SURNAME) values('"+str(Id)+"', '"+str(Name)+"', '"+str(Surname)+"');"
     conn.execute(sql)
     connection.commit()
     conn.close()
@@ -89,7 +102,7 @@ def trainImg():
 
     recognizer.train(faces, np.array(Id))
     try:
-        recognizer.save("Recognizer\trainingData.yml")
+        recognizer.save("Recognizer/trainingData.yml")
     except Exception as e:
         q='Please make "Recognizer" folder'
         Notification.configure(text=q, bg="SpringGreen3", width=50, font=('times', 18, 'bold'))
@@ -158,7 +171,7 @@ def auto():
                         now = time.time()
                         future = now + 20
                         Id, conf = rec.predict(gray[y:y+h, x:x+w])
-                        if(conf<70):
+                        if(conf>=48):
                             print(conf)
                             global profile
                             profile = getProfile(Id)
@@ -166,12 +179,13 @@ def auto():
                                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
                                 cv2.putText(img, str(profile[0]), (x, y+h+30), fontface, fontScale, fontColor)
                                 cv2.putText(img, str(profile[1]), (x, y+h+80), fontface, fontScale, fontColor)
-                        else:
+                        elif(conf<40):
+                            print("Unknown")
                             cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
                             cv2.putText(img, "Unknown", (x, y+h+30), fontface, fontScale, fontColor)
                     cv2.imshow("Face", img)
-                    key = cv2.waitKey(1) & 0xFF == ord('q')
-                    if key:
+                    key = cv2.waitKey(1)
+                    if conf>=50:
                         break
                 import pymysql.connections
                 try:
@@ -206,26 +220,25 @@ def auto():
     fill_a.place(x=250, y=160)
     windo.mainloop()
 
-def on_closing():
-    from tkinter import messagebox
-    if messagebox.askokcancel("Quit", "Do you want to quit?"):
-        frm.destroy()
-frm.protocol("WM_DELETE_WINDOW", on_closing)
+# def on_closing():
+#     from tkinter import messagebox
+#     if messagebox.askokcancel("Quit", "Do you want to quit?"):
+#         frm.destroy()
+# frm.protocol("WM_DELETE_WINDOW", on_closing)
 
-lbl = tk.Label(frm, text="Enrollment:", width=20, height=2, fg="black", bg="snow", font=('times', 15, ' bold '))
+lbl = tk.Label(frm, text="Name:", width=20, height=2, fg="black", bg="snow", font=('times', 15, ' bold '))
 lbl.place(x=200, y=200)
 
-def testVal(inStr,acttyp):
-    if acttyp == '1': #insert
-        if not inStr.isdigit():
-            return False
-    return True
+# def testVal(inStr,acttyp):
+#     if acttyp == '1': #insert
+#         if not inStr.isdigit():
+#             return False
+#     return True
 
 txt = tk.Entry(frm, validate="key", width=20, bg="lightblue", fg="red", font=('times', 25, ' bold '))
-txt['validatecommand'] = (txt.register(testVal),'%P','%d')
 txt.place(x=550, y=210)
 
-lbl2 = tk.Label(frm, text="Name:", width=20, fg="black", bg="snow", height=2, font=('times', 15, ' bold '))
+lbl2 = tk.Label(frm, text="Surname:", width=20, fg="black", bg="snow", height=2, font=('times', 15, ' bold '))
 lbl2.place(x=200, y=300)
 
 txt2 = tk.Entry(frm, width=20, bg="lightblue", fg="red", font=('times', 25, ' bold '))

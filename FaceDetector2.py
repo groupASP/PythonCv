@@ -38,8 +38,8 @@ def auto():
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = faceDetect.detectMultiScale(gray, 1.3, 5)
         for(x, y, w, h) in faces:
-            now = time.time()
-            future = now + 20
+            # now = time.time()
+            # future = now + 20
             Id, conf = rec.predict(gray[y:y+h, x:x+w])
             if(conf<70):
                 print(conf)
