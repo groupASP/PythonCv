@@ -7,23 +7,32 @@ import pymysql
 faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
 cam = cv2.VideoCapture(0)
 
-def insertOrUpdate(Id, Name):
-    global conn
+def getProfile():
     connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
     conn = connection.cursor()
-    sql = "Select * from people where P_ID='"+str(Id)+"';"
+    sql = "SELECT P_ID FROM people order by P_ID desc limit 1;"
     conn.execute(sql)
-    isRecordExist=0
+    profile=None
     for row in conn:
-        isRecordExist=1
-    if(isRecordExist==1):
-        sql="Update people set Name='"+str(Name)+"'where P_ID='"+str(Id)+"';"
-    else:
-        sql="Insert into people(P_ID, Name) values('"+str(Id)+"', '"+str(Name)+"');"
+        profile=row
+    connection.close()
+    c = int(''.join(map(str, profile)))
+    return c
+
+def insertOrUpdate(Id, Name):
+    connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
+    conn = connection.cursor()
+    sql = "Select * from people;"
+    conn.execute(sql)
+    # isRecordExist=0
+
+    sql="Insert into people(P_ID, Name) values('"+str(Id)+"','"+str(Name)+"');"
     conn.execute(sql)
     connection.commit()
     conn.close()
-Id = input("Enter user ID:")
+oid = getProfile()
+Id = oid+1
+# Id = input("Enter user ID:")
 Name = input("Enter your name:")
 insertOrUpdate(Id, Name)
 SampleNum = 0
