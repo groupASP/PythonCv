@@ -5,7 +5,7 @@ import pandas as pd
 import pymysql
 
 faceDetect = cv2.CascadeClassifier('Detect/haarcascade_frontalface_default.xml')
-cam = cv2.VideoCapture(0)
+cam = cv2.VideoCapture(1)
 
 def getProfile():
     connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
@@ -19,7 +19,7 @@ def getProfile():
     c = int(''.join(map(str, profile)))
     return c
 
-def insertOrUpdate(Id, Name):
+def insert(Id, Name):
     connection = pymysql.connect(host="localhost", user="root", password="", database="facebase")
     conn = connection.cursor()
     sql = "Select * from people;"
@@ -34,7 +34,7 @@ oid = getProfile()
 Id = oid+1
 # Id = input("Enter user ID:")
 Name = input("Enter your name:")
-insertOrUpdate(Id, Name)
+insert(Id, Name)
 SampleNum = 0
 while(True):
     ret, img = cam.read()
