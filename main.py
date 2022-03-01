@@ -171,7 +171,7 @@ def auto():
                         now = time.time()
                         future = now + 20
                         Id, conf = rec.predict(gray[y:y+h, x:x+w])
-                        if(conf>50):
+                        if(conf>45 and conf<70):
                             print(conf)
                             global profile
                             profile = getProfile(Id)
@@ -179,13 +179,13 @@ def auto():
                                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
                                 cv2.putText(img, str(profile[0]), (x, y+h+30), fontface, fontScale, fontColor)
                                 cv2.putText(img, str(profile[1]), (x, y+h+80), fontface, fontScale, fontColor)
-                        elif(conf<40):
+                        else:
                             print("Unknown")
                             cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
                             cv2.putText(img, "Unknown", (x, y+h+30), fontface, fontScale, fontColor)
                     cv2.imshow("Face", img)
                     key = cv2.waitKey(1)
-                    if conf>=50:
+                    if conf>46:
                         break
                 import pymysql.connections
                 try:
@@ -202,23 +202,23 @@ def auto():
                     Notification.place(x=350, y=400)
                 cam.release()
                 cv2.destroyAllWindows()
-    windo = tk.Tk()
-    windo.iconbitmap('AMS.ico')
-    windo.title("Enter subject name...")
-    windo.geometry('580x320')
-    windo.configure(background='snow')
-    Notifica = tk.Label(windo, text="Attendance filled Successfully", bg="Green", fg="white", width=33,
+    window = tk.Tk()
+    window.iconbitmap('AMS.ico')
+    window.title("Enter subject name...")
+    window.geometry('580x320')
+    window.configure(background='snow')
+    Notifica = tk.Label(window, text="Attendance filled Successfully", bg="Green", fg="white", width=33,
                             height=2, font=('times', 15, 'bold'))
-    sub = tk.Label(windo, text="Enter Subject", width=15, height=2, fg="white", bg="blue2", font=('times', 15, ' bold '))
+    sub = tk.Label(window, text="Enter Subject", width=15, height=2, fg="white", bg="blue2", font=('times', 15, ' bold '))
     sub.place(x=30, y=100)
 
-    tx = tk.Entry(windo, width=20, bg="yellow", fg="red", font=('times', 23, ' bold '))
+    tx = tk.Entry(window, width=20, bg="yellow", fg="red", font=('times', 23, ' bold '))
     tx.place(x=250, y=105)
 
-    fill_a = tk.Button(windo, text="Fill Attendance", fg="white",command=chooseSubject, bg="deep pink", width=20, height=2,
+    fill_a = tk.Button(window, text="Fill Attendance", fg="white",command=chooseSubject, bg="deep pink", width=20, height=2,
                        activebackground="Red", font=('times', 15, ' bold '))
     fill_a.place(x=250, y=160)
-    windo.mainloop()
+    window.mainloop()
 
 # def on_closing():
 #     from tkinter import messagebox

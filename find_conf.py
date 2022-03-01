@@ -41,7 +41,7 @@ while(True):
                     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
                     cv2.putText(img, str(profile[0]), (x, y+h+30), fontface, fontScale, fontColor)
                     cv2.putText(img, str(profile[1]), (x, y+h+80), fontface, fontScale, fontColor)
-            elif(conf>=0 or conf<40):
+            else:
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 cv2.putText(img, "Unknown", (x, y+h+30), fontface, fontScale, fontColor)
     cv2.imshow("Face", img)
